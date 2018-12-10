@@ -1,0 +1,16 @@
+galaxy_info:
+  author: 'NL'
+  description: 'Satellite Control'
+  company: LifeCare
+  license: 'GNU General Public License v3'
+  #github_branch:
+  min_ansible_version: 2
+  platforms:
+  - name: EL
+    versions:
+    - 5
+    - 6
+    - 7
+  categories:
+  - satellite
+
