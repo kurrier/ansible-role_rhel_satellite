@@ -1,6 +1,6 @@
 ---
 - name: Update Satellite Base Content Views
   shell: "/usr/bin/hammer content-view publish --async --name {{ item }} --organization {{ sat_org }}"
-  delegate_to: "{{ sat_host }}"
+#  delegate_to: "{{ sat_host }}"
   with_items: "{{ sat_cv_list }}" 
 
