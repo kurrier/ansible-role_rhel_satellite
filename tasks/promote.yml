@@ -1,0 +1,14 @@
+---
+- name: Get Satellite Content View Version
+  shell: "sudo /usr/bin/hammer content-view version list | grep {{ sat_cv_name }} | head -n1 | cut -d '|' -f3 | awk '{print $1}'"
+  register: sat_cv_version_results
+  when: sat_cv_version is not defined
+
+- set_fact:
+    sat_cv_version: "{{ sat_cv_version_results.stdout }}"
+  when: sat_cv_version is not defined
+
+- name: Promote Satellite Content View
+  shell: "sudo /usr/bin/hammer content-view version promote --async --organization {{ sat_org }} --content-view {{ sat_cv_name }} --to-lifecycle-environment {{ sat_env }} --version {{ sat_cv_version }}"
+ 
+

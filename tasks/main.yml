@@ -10,6 +10,10 @@
   when:
     - sat_publish is defined and sat_publish|bool == true
 
+- name: Satellite Promote CV
+  include_tasks: promote.yml
+  when:
+    - sat_promote is defined and sat_promote|bool == true
 
 
 
