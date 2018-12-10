@@ -1,0 +1,44 @@
+---
+- name: Unregister Red Hat system
+  shell: subscription-manager unregister
+  when: sat_unregister is defined and sat_unregister|bool == true
+  ignore_errors: true
+
+- name: Install Red Hat Satellite 6 Server CA Certificate
+  yum: name={{ sat_ca }} state=present
+  register: sat_install
+  when: sat_ca is defined
+
+- name: Register Red Hat system to Satellite
+  shell: subscription-manager register --activationkey="{{ sat_activation_key }}" --org="{{ sat_org }}"
+  register: sat_register_stat
+  ignore_errors: true
+  when:
+    - sat_install is success
+    - sat_activation_key is defined and sat_org is defined
+
+- name: Attach Entitlement for Red Hat system
+  shell: subscription-manager attach --auto
+  register: sat_attach_stat
+#  when: sat_register_stat is success
+
+- name: Enable Satellite Tools Repo
+  shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms
+  register: sat_repo_stat
+  when: sat_attach_stat is success
+
+- name: Yum cleanup
+  shell: yum clean all; rm -rf /var/lib/yum/*
+  when: sat_repo_stat is success
+
+- name: Yum Create cache
+  shell: yum makecache -y
+  when: sat_repo_stat is success
+
+- name: Install katello-agent
+  yum: name=katello-agent state=present
+  when: sat_repo_stat is success
+
+- name: Final Cleanup
+  shell: yum clean all
+  when: sat_repo_stat is success

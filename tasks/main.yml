@@ -1,0 +1,15 @@
+---
+
+- name: Satellite Register Nodes
+  include_tasks: register.yml
+  when:
+    - sat_register is defined and sat_register|bool == true
+
+- name: Satellite Publish CV
+  include_tasks: publish.yml
+  when:
+    - sat_publish is defined and sat_publish|bool == true
+
+
+
+
