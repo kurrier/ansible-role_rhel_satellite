@@ -2,4 +2,9 @@
 
 - name: Enable Satellite Tools Repo
   shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms
+  register: sat_repo_stat
+
+- name: Install katello-agent
+  yum: name=katello-agent state=latest
+  when: sat_repo_stat is success
 
