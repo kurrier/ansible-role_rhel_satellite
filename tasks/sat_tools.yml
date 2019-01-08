@@ -1,0 +1,5 @@
+---
+
+- name: Enable Satellite Tools Repo
+  shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms
+

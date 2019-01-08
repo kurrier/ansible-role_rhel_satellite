@@ -5,6 +5,11 @@
   when:
     - sat_register is defined and sat_register|bool == true
 
+- name: Enable Satellite Tools
+  include_tasks: sat_tools.yml
+  when:
+    - sat_tools is defined and sat_tools|bool == true
+
 - name: Satellite Publish CV
   include_tasks: publish.yml
   when:
