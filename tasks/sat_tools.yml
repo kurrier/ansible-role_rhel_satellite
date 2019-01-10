@@ -4,7 +4,15 @@
   shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms
   register: sat_repo_stat
 
-- name: Install katello-agent
+- name: Update katello-agent
   yum: name=katello-agent state=latest
   when: sat_repo_stat is success
+
+- name: Update katello-host-tools
+  yum: name=katello-host-tools state=latest
+  when: sat_repo_stat is success
+
+- name: Restart katello-agent
+  service: name=goferd state=restarted
+  when: sat_repo_stat  is success
 

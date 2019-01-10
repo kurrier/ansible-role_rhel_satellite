@@ -4,6 +4,11 @@
   when: sat_unregister is defined and sat_unregister|bool == true
   ignore_errors: true
 
+- name: Remove Red Hat Satellite 6 Server CA Certificate
+  yum: name=katello-ca-consumer* state=absent
+  register: sat_install
+  when: sat_ca is defined
+
 - name: Install Red Hat Satellite 6 Server CA Certificate
   yum: name={{ sat_ca }} state=present
   register: sat_install
@@ -36,7 +41,11 @@
   when: sat_repo_stat is success
 
 - name: Install katello-agent
-  yum: name=katello-agent state=present
+  yum: name=katello-agent state=lastest
+  when: sat_repo_stat is success
+
+- name: Install katello-host-tools
+  yum: name=katello-host-tools state=lastest
   when: sat_repo_stat is success
 
 - name: Final Cleanup
