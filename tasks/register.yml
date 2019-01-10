@@ -41,11 +41,11 @@
   when: sat_repo_stat is success
 
 - name: Install katello-agent
-  yum: name=katello-agent state=lastest
+  yum: name=katello-agent state=latest
   when: sat_repo_stat is success
 
 - name: Install katello-host-tools
-  yum: name=katello-host-tools state=lastest
+  yum: name=katello-host-tools state=latest
   when: sat_repo_stat is success
 
 - name: Final Cleanup
