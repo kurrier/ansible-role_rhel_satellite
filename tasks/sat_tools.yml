@@ -16,3 +16,7 @@
   service: name=goferd state=restarted
   when: sat_repo_stat  is success
 
+- name: Final Cleanup
+  shell: yum clean all
+  when: sat_repo_stat is success
+
