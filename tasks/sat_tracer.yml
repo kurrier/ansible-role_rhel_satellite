@@ -1,0 +1,14 @@
+---
+
+- name: Enable Satellite Tools Repo
+  shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms
+  register: sat_repo_stat
+
+- name: Install katello tracer
+  yum: name=katello-host-tools-tracer state=latest
+  when: sat_repo_stat is success
+
+- name: Initiate report upload
+  shell: katello-tracer-upload
+  when: sat_repo_stat is success
+

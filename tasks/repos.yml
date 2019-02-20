@@ -1,0 +1,44 @@
+---
+- name: Getting repos
+  shell: sudo yum repoinfo | grep -E 'Repo-id|Repo-baseurl'
+  register: yum_repos_rhel7
+  when: ansible_distribution_major_version >= "7"
+
+- name: Getting repos
+  shell: sudo yum -v repolist | grep -E 'Repo-id|Repo-baseurl'
+  register: yum_repos_rhel6
+  when: ansible_distribution_major_version <= "6"
+
+- name: Creating temp file
+  tempfile:
+    state: file
+    suffix: repos
+  register: yum_repos_tempfile
+  become: false
+  run_once: true
+  delegate_to: localhost
+
+- name: Caching information
+  shell: "printf '###--- {{ ansible_hostname }} / rhel{{ ansible_distribution_major_version }}\n
+     {{ yum_repos_rhel7.stdout }}\n
+     ###--------------\n
+     \n' >> {{ yum_repos_tempfile.path }}"
+  delegate_to: localhost
+  when: yum_repos_rhel7 is not skipped 
+
+- name: Caching information
+  shell: "printf '###--- {{ ansible_hostname }} / rhel{{ ansible_distribution_major_version }}\n
+     {{ yum_repos_rhel6.stdout }}\n
+     ###--------------\n
+     \n' >> {{ yum_repos_tempfile.path }}"
+  delegate_to: localhost
+  when: yum_repos_rhel6 is not skipped
+
+- name: Cleanup
+  shell: "yum clean all"
+
+- name: Info
+  debug:
+    msg: "Report location: {{ yum_repos_tempfile.path }}"
+  run_once: true
+

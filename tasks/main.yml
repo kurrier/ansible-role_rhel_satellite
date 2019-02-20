@@ -20,5 +20,10 @@
   when:
     - sat_promote is defined and sat_promote|bool == true
 
+- name: Repo Information
+  include_tasks: repos.yml
+  when:
+    - sat_repos is defined and sat_repos|bool == true
+
 
 
