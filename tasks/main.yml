@@ -10,6 +10,11 @@
   when:
     - sat_tools is defined and sat_tools|bool == true
 
+- name: Enable Satellite Tracer
+  include_tasks: sat_tracer.yml
+  when:
+    - sat_tracer is defined and sat_tracer|bool == true
+
 - name: Satellite Publish CV
   include_tasks: publish.yml
   when:
