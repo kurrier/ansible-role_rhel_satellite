@@ -2,14 +2,13 @@ version: 2
 
 jobs:
   build_and_test:
-    machine:
-      python:
-        version: 2.7.10
-
-    dependencies:
-      pre:
-        - pip install ansible
+    docker:
+      - image: python:latest
     steps:
+      - run:
+          name: install ansible
+          command: pip install ansible
+
       - run:
           name: syntax check
           command: ansible-playbook tests/test.yml -i tests/inventory --syntax-check
