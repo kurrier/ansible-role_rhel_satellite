@@ -1,21 +1,19 @@
 version: 2
 
-machine:
-  python:
-    version: 2.7.10
-
-dependencies:
-  pre:
-    - pip install ansible
 jobs:
-  syntax_check:
+  test:
+    machine:
+      python:
+        version: 2.7.10
+
+    dependencies:
+      pre:
+        - pip install ansible
     steps:
       - run:
           name: syntax check
           command: ansible-playbook tests/test.yml -i tests/inventory --syntax-check
 
-  test:
-    steps:
       - run:
           name: playbook test
           command: |
