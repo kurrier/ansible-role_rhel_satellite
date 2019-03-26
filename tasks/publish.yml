@@ -5,12 +5,12 @@
   run_once: true
   delegate_to: localhost
   when:
-    - satellite_function_encrypt is defined and satellite_function_encrypt == true
+    - satellite_function_encrypt is defined and satellite_function_encrypt
 
 - name: get content view id
   shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
-         | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]" 
+         | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
          | jq .[] | jq .id'
   no_log: true
   delegate_to: localhost
@@ -32,9 +32,9 @@
     msg: "{{ satellite_cv_promote.stdout }}"
 
 - name: get content view version
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" 
-          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200" 
-          | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]" 
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
+          | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
           | jq .[] | jq -r .latest_version'
   no_log: true
   delegate_to: localhost
@@ -45,7 +45,7 @@
     msg: "{{ satellite_cv_version.stdout }}"
 
 - name: check publish status
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" 
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
          -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
          | jq "[.results[] | select(.version==\"{{ satellite_cv_version.stdout }}\")]"
          | jq .[] | jq -r .status'

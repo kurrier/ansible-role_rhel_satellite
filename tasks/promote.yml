@@ -5,7 +5,7 @@
   run_once: true
   delegate_to: localhost
   when:
-    - satellite_function_encrypt is defined and satellite_function_encrypt == true
+    - satellite_function_encrypt is defined and satellite_function_encrypt
 
 - name: get content view id
   shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
@@ -62,8 +62,8 @@
     msg: "{{ satellite_env_id.stdout }}"
 
 - name: promote content view
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
-         -X POST "{{ satellite_url }}/katello/api/content_view_versions/{{ satellite_cv_version_id.stdout }}/promote?environment_id={{ satellite_env_id.stdout }}"
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" -X POST
+         "{{ satellite_url }}/katello/api/content_view_versions/{{ satellite_cv_version_id.stdout }}/promote?environment_id={{ satellite_env_id.stdout }}"
          -H "Content-Type: application/json"'
   no_log: true
   delegate_to: localhost

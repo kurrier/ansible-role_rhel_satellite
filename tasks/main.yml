@@ -3,32 +3,32 @@
 - name: Satellite Register Nodes
   include_tasks: register.yml
   when:
-    - sat_register is defined and sat_register|bool == true
+    - sat_register is defined and sat_register|bool
 
 - name: Enable Satellite Tools
   include_tasks: sat_tools.yml
   when:
-    - sat_tools is defined and sat_tools|bool == true
+    - sat_tools is defined and sat_tools|bool
 
 - name: Enable Satellite Tracer
   include_tasks: sat_tracer.yml
   when:
-    - sat_tracer is defined and sat_tracer|bool == true
+    - sat_tracer is defined and sat_tracer|bool
 
 - name: Satellite Publish CV
   include_tasks: publish.yml
   when:
-    - sat_publish is defined and sat_publish|bool == true
+    - sat_publish is defined and sat_publish|bool
 
 - name: Satellite Promote CV
   include_tasks: promote.yml
   when:
-    - sat_promote is defined and sat_promote|bool == true
+    - sat_promote is defined and sat_promote|bool
 
 - name: Repo Information
   include_tasks: repos.yml
   when:
-    - sat_repos is defined and sat_repos|bool == true
+    - sat_repos is defined and sat_repos|bool
 
 
 
