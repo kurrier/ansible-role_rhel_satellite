@@ -2,15 +2,15 @@ version: 2
 
 jobs:
   build_and_test:
+    working_directory: ~/my-app
     docker:
       - image: python:latest
     steps:
       - run:
           name: install ansible
           command: pip install ansible
-
+      - checkout
       - run: ls
-
       - run:
           name: syntax check
           command: ansible-playbook tests/test.yml -i tests/inventory --syntax-check
@@ -22,8 +22,6 @@ jobs:
             | grep -q 'changed=0.*failed=0'
             && (echo 'Idempotence test: pass' && exit 0)
             || (echo 'Idempotence test: fail' && exit 1)
-
-      - checkout
 
 
 workflows:
