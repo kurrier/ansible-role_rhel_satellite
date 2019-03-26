@@ -1,4 +1,4 @@
-Ansible Role: satellite
+Ansible Role: satellite [![CircleCI](https://circleci.com/gh/kurrier/ansible-role_rhel_satellite.svg?style=svg)](https://circleci.com/gh/kurrier/ansible-role_rhel_satellite)
 =========
 
 RHEL Satellite Management
