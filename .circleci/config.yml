@@ -1,0 +1,27 @@
+version: 2
+
+machine:
+  python:
+    version: 2.7.10
+
+dependencies:
+  pre:
+    - pip install ansible
+jobs:
+  syntax_check:
+    steps:
+      - run:
+          name: syntax check
+          command: ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+
+  test:
+    steps:
+      - run:
+          name: playbook test
+          command: |
+            ansible-playbook tests/test.yml -i tests/inventory -c local -b
+            | grep -q 'changed=0.*failed=0'
+            && (echo 'Idempotence test: pass' && exit 0)
+            || (echo 'Idempotence test: fail' && exit 1)
+
+

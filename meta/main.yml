@@ -1,16 +1,21 @@
 galaxy_info:
-  author: 'NL'
-  description: 'Satellite Control'
-  company: LifeCare
-  license: 'GNU General Public License v3'
-  #github_branch:
-  min_ansible_version: 2
+  author: Nick Lalumiere
+  description: "Adds the ability for Ansible to manage RHEL Satellite"
+  role_name: satellite
+  license: GPLv3
+  min_ansible_version: 2.4
+  min_ansible_container_version: 0.2.0
   platforms:
   - name: EL
     versions:
     - 5
     - 6
     - 7
-  categories:
-  - satellite
+  galaxy_tags:
+    - satellite
+    - rhel
+    - administration
+    - ci/cd
+
+dependencies: []
 

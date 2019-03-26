@@ -1,6 +1,73 @@
 ---
-- name: Update Satellite Base Content Views
-  shell: "sudo /usr/bin/hammer content-view publish --async --name {{ item }} --organization {{ sat_org }}"
-#  delegate_to: "{{ sat_host }}"
-  with_items: "{{ sat_cv_list }}" 
+- name: add credentials
+  include_vars: "{{ ansible_vault }}/satellite_auth.yml"
+  no_log: true
+  run_once: true
+  delegate_to: localhost
+  when:
+    - satellite_function_encrypt is defined and satellite_function_encrypt == true
 
+- name: get content view id
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+         -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
+         | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]" 
+         | jq .[] | jq .id'
+  no_log: true
+  delegate_to: localhost
+  register: satellite_cv_id
+
+- debug:
+    msg: "{{ satellite_cv_id.stdout }}"
+
+- name: publish content view
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+         -X POST "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/publish"
+         -H "Content-Type: application/json"'
+  no_log: true
+  delegate_to: localhost
+  register: satellite_cv_promote
+  when: satellite_cv_id is success
+
+- debug:
+    msg: "{{ satellite_cv_promote.stdout }}"
+
+- name: get content view version
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" 
+          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200" 
+          | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]" 
+          | jq .[] | jq -r .latest_version'
+  no_log: true
+  delegate_to: localhost
+  register: satellite_cv_version
+  when: satellite_cv_promote is success
+
+- debug:
+    msg: "{{ satellite_cv_version.stdout }}"
+
+- name: check publish status
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" 
+         -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
+         | jq "[.results[] | select(.version==\"{{ satellite_cv_version.stdout }}\")]"
+         | jq .[] | jq -r .status'
+  no_log: true
+  delegate_to: localhost
+  register: satellite_cv_status
+
+- debug:
+    msg: "{{ satellite_cv_status.stdout }}"
+
+- name: check publish status
+  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+         -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
+         | jq "[.results[] | select(.version==\"{{ satellite_cv_version.stdout }}\")]"
+         | jq .[] | jq -r .status'
+  no_log: true
+  delegate_to: localhost
+  register: satellite_cv_status
+  retries: 45
+  delay: 20
+  until: satellite_cv_status.stdout == "successful"
+  when: satellite_cv_promote and satellite_cv_version is success
+
+- debug:
+    msg: "{{ satellite_cv_status.stdout }}"

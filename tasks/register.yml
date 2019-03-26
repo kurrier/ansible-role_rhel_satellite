@@ -25,7 +25,6 @@
 - name: Attach Entitlement for Red Hat system
   shell: subscription-manager attach --auto
   register: sat_attach_stat
-#  when: sat_register_stat is success
 
 - name: Enable Satellite Tools Repo
   shell: subscription-manager repos --enable=rhel-\*-satellite-tools-\*-rpms

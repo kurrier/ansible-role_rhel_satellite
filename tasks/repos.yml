@@ -24,7 +24,7 @@
      ###--------------\n
      \n' >> {{ yum_repos_tempfile.path }}"
   delegate_to: localhost
-  when: yum_repos_rhel7 is not skipped 
+  when: yum_repos_rhel7 is not skipped
 
 - name: Caching information
   shell: "printf '###--- {{ ansible_hostname }} / rhel{{ ansible_distribution_major_version }}\n
