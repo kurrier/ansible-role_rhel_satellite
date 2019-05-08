@@ -7,8 +7,20 @@
   when:
     - satellite_function_encrypt is defined and satellite_function_encrypt
 
+- name: logging into satellite
+  shell: 'curl -ks -c - --user {{ satellite_auth_username }}:{{ satellite_auth_password }}
+          -X GET "{{ satellite_url }}/katello/api/organizations/"
+          -H "accept: application/json"
+          | tail -n1 | cut -f7'
+  register: satellite_cookie
+  delegate_to: localhost
+  no_log: true
+
+- debug:
+    msg: "{{ satellite_cookie.stdout }}"
+
 - name: get content view id
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
          | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
          | jq .[] | jq .id'
@@ -20,7 +32,7 @@
     msg: "{{ satellite_cv_id.stdout }}"
 
 - name: publish content view
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X POST "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/publish"
          -H "Content-Type: application/json"'
   no_log: true
@@ -32,7 +44,7 @@
     msg: "{{ satellite_cv_promote.stdout }}"
 
 - name: get content view version
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
           -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
           | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
           | jq .[] | jq -r .latest_version'
@@ -45,7 +57,7 @@
     msg: "{{ satellite_cv_version.stdout }}"
 
 - name: check publish status
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
          | jq "[.results[] | select(.version==\"{{ satellite_cv_version.stdout }}\")]"
          | jq .[] | jq -r .status'
@@ -57,7 +69,7 @@
     msg: "{{ satellite_cv_status.stdout }}"
 
 - name: check publish status
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
          | jq "[.results[] | select(.version==\"{{ satellite_cv_version.stdout }}\")]"
          | jq .[] | jq -r .status'

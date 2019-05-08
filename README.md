@@ -13,7 +13,8 @@ Role Variables
 * satellite_url: satellite server URL
 * sat_env: lifecycle environment of client server
 * sat_org: satellite orginization
-* satellite_auth_api: api auth
+* satellite_auth_username: api username
+* satellite_auth_password: api password
 * satellite_cv_name: CV Name
 
 ## Run ##

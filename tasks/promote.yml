@@ -7,8 +7,20 @@
   when:
     - satellite_function_encrypt is defined and satellite_function_encrypt
 
+- name: logging into satellite
+  shell: 'curl -ks -c - --user {{ satellite_auth_username }}:{{ satellite_auth_password }}
+          -X GET "{{ satellite_url }}/katello/api/organizations/"
+          -H "accept: application/json"
+          | tail -n1 | cut -f7'
+  register: satellite_cookie
+  delegate_to: localhost
+  no_log: true
+
+- debug:
+    msg: "{{ satellite_cookie.stdout }}"
+
 - name: get content view id
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
          | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
          | jq .[] | jq .id'
@@ -20,7 +32,7 @@
     msg: "{{ satellite_cv_id.stdout }}"
 
 - name: get content view version
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
           -X GET "{{ satellite_url }}/katello/api/organizations/1/content_views?per_page=200"
           | jq "[.results[] | select(.name==\"{{ satellite_cv_name }}\")]"
           | jq .[] | jq -r .latest_version'
@@ -37,7 +49,7 @@
   when: satellite_cv_version is not defined
 
 - name: get content view version id
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
           -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/content_view_versions"
           | jq "[.results[] | select(.version==\"{{ satellite_cv_version }}\")]"
           | jq .[] | jq -r .id'
@@ -50,7 +62,7 @@
     msg: "{{ satellite_cv_version_id.stdout }}"
 
 - name: get lifecyle id
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
           -X GET "{{ satellite_url }}/katello/api/organizations/1/environments?per_page=200"
           | jq "[.results[] | select(.name==\"{{ satellite_env }}\")]"
           | jq .[] | jq -r .id'
@@ -62,7 +74,7 @@
     msg: "{{ satellite_env_id.stdout }}"
 
 - name: promote content view
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}" -X POST
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}" -X POST
          "{{ satellite_url }}/katello/api/content_view_versions/{{ satellite_cv_version_id.stdout }}/promote?environment_id={{ satellite_env_id.stdout }}"
          -H "Content-Type: application/json"'
   no_log: true
@@ -74,7 +86,7 @@
     msg: "{{ satellite_cv_promote.stdout }}"
 
 - name: check promotion status
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
          | jq "[.results[] | select(.version==\"{{ satellite_cv_version }}\")]"
          | jq ".[] | select(.action==\"promotion\")"
@@ -88,7 +100,7 @@
     msg: "{{ satellite_cv_status.stdout }}"
 
 - name: check promotion status
-  shell: 'curl -k -s --header "Authorization: Basic {{ satellite_auth_api }}"
+  shell: 'curl -k -s -b "_session_id={{ satellite_cookie.stdout }}"
          -X GET "{{ satellite_url }}/katello/api/content_views/{{ satellite_cv_id.stdout }}/history"
          | jq "[.results[] | select(.version==\"{{ satellite_cv_version }}\")]"
          | jq ".[] | select(.action==\"promotion\")"
